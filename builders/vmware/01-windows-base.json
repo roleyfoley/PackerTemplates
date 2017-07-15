@@ -1,0 +1,178 @@
+{
+  "builders": [    
+        {
+            "type": "vmware-iso",
+            "output_directory": "./output-{{ user `os_name` }}-base/",
+            "vm_name": "{{ user `os_name` }}-base",
+            "guest_os_type": "{{ user `guest_os_type` }}",
+            "headless": "{{ user `headless` }}",
+            "iso_url": "{{ user `iso_url` }}",
+            "iso_checksum": "{{ user `iso_checksum` }}",
+            "iso_checksum_type": "sha1",
+            "communicator": "winrm",
+            "winrm_username": "vagrant",
+            "winrm_password": "vagrant",
+            "winrm_timeout": "12h",
+            "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+            "shutdown_timeout": "1h",
+            "floppy_files": [
+                "answer_files/{{ user `os_name` }}/Autounattend.xml",
+                "floppy/winrm.ps1"
+            ],
+            "disk_size": 60000,
+            "disk_type_id": 1,
+            "vmx_data": {
+                "memsize": 4096,
+                "scsi0.virtualDev": "lsisas1068",
+                "firmware": "efi",
+                "bios.bootOrder": "hdd,cdrom" 
+            },
+            "version": 12,
+            "boot_command":[
+                "<spacebar>"
+            ],
+            "boot_wait": "2s"
+        }
+  ],
+   "provisioners": [
+        {
+            "elevated_password": "vagrant",
+            "elevated_user": "vagrant",
+            "script": "scripts/install_choco.ps1",
+            "type": "powershell"
+        },
+        {
+            "elevated_password": "vagrant",
+            "elevated_user": "vagrant",
+            "script": "scripts/install_choco_vmwaretools.ps1",
+            "type": "powershell",
+            "valid_exit_codes": [
+                0,
+                1,
+                2,
+                3,
+                5,
+                10,
+                15,
+                259
+            ]
+        },
+        {
+            "elevated_password": "vagrant",
+            "elevated_user": "vagrant",
+            "script": "scripts/check_choco_vmwaretools.ps1",
+            "type": "powershell",
+            "pause_before": "60s"
+        },
+        {
+            "type": "powershell",
+            "script": "scripts/install_psrepo.ps1",
+            "elevated_user": "vagrant",
+            "elevated_password": "vagrant",
+            "valid_exit_codes": [
+                0,
+                1,
+                2,
+                3,
+                5,
+                10,
+                15
+            ]
+        },
+        {
+            "type": "powershell",
+            "script": "scripts/install_psModules.ps1",
+            "elevated_user": "vagrant",
+            "elevated_password": "vagrant",
+            "valid_exit_codes": [
+                0,
+                1,
+                2,
+                3,
+                5,
+                10,
+                15
+            ]
+        },
+        {
+            "type": "powershell",
+            "script": "scripts/install_windows_updates.ps1",
+            "elevated_user": "vagrant",
+            "elevated_password": "vagrant",
+            "valid_exit_codes": [
+                0,
+                1,
+                2,
+                3,
+                5,
+                10,
+                15
+            ]
+        },
+        {
+            "type": "windows-restart",
+            "restart_timeout": "1h"
+        },
+        {
+            "type": "powershell",
+            "script": "scripts/install_windows_updates.ps1",
+            "elevated_user": "vagrant",
+            "elevated_password": "vagrant",
+            "valid_exit_codes": [
+                0,
+                1,
+                2,
+                3,
+                5,
+                10,
+                15
+            ]
+        },
+        {
+            "type": "windows-restart",
+            "restart_timeout": "1h"
+        },
+        {
+            "type": "powershell",
+            "script": "scripts/install_windows_updates.ps1",
+            "elevated_user": "vagrant",
+            "elevated_password": "vagrant",
+            "valid_exit_codes": [
+                0,
+                1,
+                2,
+                3,
+                5,
+                10,
+                15
+            ]
+        }, 
+        {
+            "type": "windows-restart",
+            "restart_timeout": "1h"
+        },
+        {
+            "elevated_password": "vagrant",
+            "elevated_user": "vagrant",
+            "script": "scripts/enable_rdp.ps1",
+            "type": "powershell"
+        }, 
+        {
+            "elevated_password": "vagrant",
+            "elevated_user": "vagrant",
+            "script": "scripts/clean_and_scrub.ps1",
+            "type": "powershell"
+        },
+        {
+            "type": "powershell",
+            "script": "scripts/save_shutdown_command.ps1"
+        }
+    ],
+    "variables": {
+        "os_name": "win2016std",
+        "headless": "false",
+        "iso_checksum": "3bb1c60417e9aeb3f4ce0eb02189c0c84a1c6691",
+        "iso_url": "http://care.dlservice.microsoft.com/dl/download/1/6/F/16FA20E6-4662-482A-920B-1A45CF5AAE3C/14393.0.160715-1616.RS1_RELEASE_SERVER_EVAL_X64FRE_EN-US.ISO",
+        "guest_os_type": "windows9srv-64"
+  }
+}

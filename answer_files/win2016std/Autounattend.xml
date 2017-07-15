@@ -10,51 +10,73 @@
 		</DriverPaths>
 	</component>
 
-        <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-            <SetupUILanguage>
-                <UILanguage>en-US</UILanguage>
-            </SetupUILanguage>
-            <InputLocale>en-US</InputLocale>
-            <SystemLocale>en-US</SystemLocale>
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+        <SetupUILanguage>
             <UILanguage>en-US</UILanguage>
-            <UILanguageFallback>en-US</UILanguageFallback>
-            <UserLocale>en-US</UserLocale>
-        </component>
-        <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-            <DiskConfiguration>
-                <Disk wcm:action="add">
-                    <CreatePartitions>
-                        <CreatePartition wcm:action="add">
-                            <Type>Primary</Type>
-                            <Order>1</Order>
-                            <Size>350</Size>
-                        </CreatePartition>
-                        <CreatePartition wcm:action="add">
-                            <Order>2</Order>
-                            <Type>Primary</Type>
-                            <Extend>true</Extend>
-                        </CreatePartition>
-                    </CreatePartitions>
-                    <ModifyPartitions>
-                        <ModifyPartition wcm:action="add">
-                            <Active>true</Active>
-                            <Format>NTFS</Format>
-                            <Label>boot</Label>
-                            <Order>1</Order>
-                            <PartitionID>1</PartitionID>
-                        </ModifyPartition>
-                        <ModifyPartition wcm:action="add">
-                            <Format>NTFS</Format>
-                            <Label>SYSTEM</Label>
-                            <Letter>C</Letter>
-                            <Order>2</Order>
-                            <PartitionID>2</PartitionID>
-                        </ModifyPartition>
-                    </ModifyPartitions>
-                    <DiskID>0</DiskID>
-                    <WillWipeDisk>true</WillWipeDisk>
-                </Disk>
-            </DiskConfiguration>
+        </SetupUILanguage>
+        <InputLocale>en-US</InputLocale>
+        <SystemLocale>en-US</SystemLocale>
+        <UILanguage>en-US</UILanguage>
+        <UILanguageFallback>en-US</UILanguageFallback>
+        <UserLocale>en-US</UserLocale>
+    </component>
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+     <DiskConfiguration>
+
+        <Disk wcm:action="add">
+            <DiskID>0</DiskID> 
+            <WillWipeDisk>true</WillWipeDisk> 
+            <CreatePartitions>
+
+            <!-- EFI system partition (ESP) -->
+            <CreatePartition wcm:action="add">
+                <Order>1</Order> 
+                <Type>EFI</Type> 
+                <Size>100</Size> 
+            </CreatePartition>
+
+            <!-- Microsoft reserved partition (MSR) -->
+            <CreatePartition wcm:action="add">
+                <Order>2</Order> 
+                <Type>MSR</Type> 
+                <Size>128</Size> 
+            </CreatePartition>
+
+            <!-- Windows partition -->
+            <CreatePartition wcm:action="add">
+                <Order>3</Order> 
+                <Type>Primary</Type> 
+                <Extend>true</Extend> 
+            </CreatePartition>
+
+            </CreatePartitions>
+            <ModifyPartitions>
+
+            <!-- EFI system partition (ESP) -->
+            <ModifyPartition wcm:action="add">
+                <Order>1</Order> 
+                <PartitionID>1</PartitionID> 
+                <Label>System</Label> 
+                <Format>FAT32</Format> 
+            </ModifyPartition>
+
+            <!-- MSR partition does not need to be modified -->
+
+            <!-- Windows partition -->
+            <ModifyPartition wcm:action="add">
+                <Order>2</Order> 
+                <PartitionID>3</PartitionID> 
+                <Label>Windows</Label> 
+                <Letter>C</Letter> 
+                <Format>NTFS</Format> 
+            </ModifyPartition>
+            </ModifyPartitions>
+        </Disk>
+
+
+        <WillShowUI>OnError</WillShowUI> 
+        </DiskConfiguration>
+
             <ImageInstall>
                 <OSImage>
                     <InstallFrom>
@@ -65,7 +87,7 @@
                     </InstallFrom>
                     <InstallTo>
                         <DiskID>0</DiskID>
-                        <PartitionID>2</PartitionID>
+                        <PartitionID>3</PartitionID>
                     </InstallTo>
                 </OSImage>
             </ImageInstall>
@@ -91,9 +113,9 @@
   <settings pass="oobeSystem">
     <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <InputLocale>en-US</InputLocale>
-      <SystemLocale>en-US</SystemLocale>
-      <UILanguage>en-US</UILanguage>
-      <UserLocale>en-US</UserLocale>
+      <SystemLocale>en-AU</SystemLocale>
+      <UILanguage>en-AU</UILanguage>
+      <UserLocale>en-AU</UserLocale>
     </component>
     <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <OOBE>
@@ -105,7 +127,7 @@
                 <NetworkLocation>Home</NetworkLocation>
                 <ProtectYourPC>1</ProtectYourPC>
             </OOBE>
-      <TimeZone>UTC</TimeZone>
+      <TimeZone>AEST</TimeZone>
       <UserAccounts>
         <AdministratorPassword>
           <Value>vagrant</Value>

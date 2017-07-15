@@ -4,3 +4,4 @@ packer_cache/
 tools/*
 packages/*
 .fake/*
+.vagrant/*

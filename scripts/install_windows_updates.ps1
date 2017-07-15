@@ -1,8 +1,10 @@
-$wuInstallExe = Join-Path "$($env:windir)\SYSTEM32" 'WUInstallAMD64.exe'
-
-if (!(Test-Path -Path $wuInstallExe))
-{
-    Invoke-WebRequest -UseBasicParsing -Uri 'https://dl.dropboxusercontent.com/u/727435/Tools/WUInstallAMD64.exe' -OutFile $wuInstallExe
+# Install Windows Update PS module
+Write-Host "Installing Updates"
+if ( (Get-Module -ListAvailable -Name PSWindowsUpdate) ) { 
+    Write-host "Module found starting updates"
+    import-module PSWindowsUpdate
+    Get-WUInstall -AcceptAll -IgnoreUserInput -IgnoreReboot
 }
-
-C:\WINDOWS\SYSTEM32\WUInstallAMD64.exe /install /autoaccepteula /silent
+else {
+    Write-Error "Module not found - No Updates have been applied" -ErrorAction Stop
+}

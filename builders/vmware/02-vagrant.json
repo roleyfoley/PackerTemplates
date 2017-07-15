@@ -1,0 +1,47 @@
+{
+  "builders": [    
+        {
+            "type": "vmware-vmx",
+            "vm_name": "{{ user `os_name` }}-vagrant",
+            "headless": "{{ user `headless` }}",
+            "source_path": "./output-{{ user `os_name` }}-base/{{ user `os_name`}}-base.vmx",
+            "output_directory": "./output-{{ user `os_name` }}-vagrant/",
+            "communicator": "winrm",
+            "winrm_username": "vagrant",
+            "winrm_password": "vagrant",
+            "winrm_timeout": "12h",
+            "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+            "shutdown_timeout": "1h"
+        }
+    ],
+    "provisioners": [  
+        {
+            "type": "powershell",
+            "script": "scripts/install_choco_psdev.ps1"
+        },  
+        {
+            "elevated_password": "vagrant",
+            "elevated_user": "vagrant",
+            "script": "scripts/clean_and_scrub.ps1",
+            "type": "powershell"
+        },
+        {
+            "type": "powershell",
+            "script": "scripts/save_shutdown_command.ps1"
+        }
+    ],
+    "post-processors": [
+        [
+            {
+                "type": "vagrant",
+                "keep_input_artifact": true,
+                "output": "./output-boxes/{{ user `os_name` }}{{.Provider}}.box",
+                "vagrantfile_template": "./post-provision/vagrantfile-windows.template"
+            }
+        ]
+    ],
+    "variables": {
+        "os_name": "win2016std",
+        "headless": "false"
+  }
+}
