@@ -60,6 +60,11 @@ Vagrant.configure("2") do |config|
   # View the documentation for the provider you are using for more
   # information on available options.
 
+  config.vm.provider "vmware_fusion" do |v|
+    v.vmx["memsize"] = "2048"
+    v.vmx["numvcpus"] = "4"
+  end
+
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.

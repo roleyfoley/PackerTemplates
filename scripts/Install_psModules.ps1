@@ -1,6 +1,15 @@
 write-host "Installing PS Modules"
 
-$Modules = @('PSWindowsUpdate')
+$Modules = @( 
+    'PSWindowsUpdate'
+    'xTimeZone'
+    'SystemLocaleDsc'
+    'xNetworking'
+    'xSystemSecurity' 
+    'xComputerManagement'
+    'xRemoteDesktopAdmin'
+    'SecurityPolicyDsc'
+)
 
 foreach ( $Module in $Modules ) { 
     if ( !(Get-Module -ListAvailable -Name $Module) ) { 

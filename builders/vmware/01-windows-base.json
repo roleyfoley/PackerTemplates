@@ -94,6 +94,7 @@
                 15
             ]
         },
+        
         {
             "type": "powershell",
             "script": "scripts/install_windows_updates.ps1",
@@ -152,10 +153,12 @@
             "restart_timeout": "1h"
         },
         {
-            "elevated_password": "vagrant",
-            "elevated_user": "vagrant",
-            "script": "scripts/enable_rdp.ps1",
-            "type": "powershell"
+            "type": "powershell",
+            "script": "scripts/dsc_baseconfig.ps1"
+        }, 
+        {
+            "type": "windows-restart",
+            "restart_timeout": "1h"
         }, 
         {
             "elevated_password": "vagrant",

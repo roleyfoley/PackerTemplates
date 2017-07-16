@@ -16,10 +16,6 @@
     ],
     "provisioners": [  
         {
-            "type": "powershell",
-            "script": "scripts/install_choco_psdev.ps1"
-        },  
-        {
             "elevated_password": "vagrant",
             "elevated_user": "vagrant",
             "script": "scripts/clean_and_scrub.ps1",
@@ -34,7 +30,7 @@
         [
             {
                 "type": "vagrant",
-                "keep_input_artifact": true,
+                "keep_input_artifact": false,
                 "output": "./output-boxes/{{ user `os_name` }}{{.Provider}}.box",
                 "vagrantfile_template": "./post-provision/vagrantfile-windows.template"
             }
