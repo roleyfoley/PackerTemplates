@@ -1,3 +1,134 @@
+Configuration BaseUserConfig { 
+    param
+   (
+        [string]$UserRegHive
+
+   )
+
+   Import-DscResource -ModuleName PsDesiredStateConfiguration
+
+    Registry UserKey_HiddenFiles { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        ValueName = 'Hidden'
+        ValueData =  '1'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_ShowExtensions { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        ValueName = 'HideFileExt'
+        ValueData =  '0'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_ShowEmptyDrives { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        ValueName = 'HideDrivesWithNoMedia'
+        ValueData =  '0'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_DisableSharingWizard { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        ValueName = 'SharingWizardOn'
+        ValueData =  '0'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+
+    Registry UserKey_NoFrequentFiles { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer"
+        ValueName = 'ShowFrequent'
+        ValueData =  '0'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_NoRecentFiles { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer"
+        ValueName = 'ShowRecent'
+        ValueData =  '0'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_ShowFullFilePath { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\CabinetState"
+        ValueName = 'FullPath'
+        ValueData =  '1'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_SearchFileNamesOnly { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\PrimaryProperties"
+        ValueName = 'UnindexedLocations'
+        ValueData =  '1'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_SearchSubFolders { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences"
+        ValueName = 'SearchSubFolders'
+        ValueData =  '1'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_SearchAutoWildCard { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences"
+        ValueName = 'AutoWildCard'
+        ValueData =  '1'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_SearchSystemFolders { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences"
+        ValueName = 'SystemFolders'
+        ValueData =  '1'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+
+    Registry UserKey_SearchArchivedFolders { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences"
+        ValueName = 'ArchivedFiles'
+        ValueData =  '1'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+        
+    }
+}
+
 Configuration BaseOSConfig { 
    param
    (
@@ -16,12 +147,21 @@ Configuration BaseOSConfig {
        [String] $OEMSupportNumber = '000',
 
        [ValidateNotNullOrEmpty()]
-       [String] $ImageName = 'Win2016Std_1.0.0'
+       [String] $ImageName = 'Win2016Std_1.0.0',
+
+       [ValidateNotNullOrEmpty()]
+       [String] $DefaultUserMountPoint = 'HKLM:\DEFAULTUSER'
    )
 
-    Import-DscResource -ModuleName PsDesiredStateConfiguration,xTimeZone,SystemLocaleDsc,xNetworking,xSystemSecurity,xComputerManagement,xRemoteDesktopAdmin,SecurityPolicyDsc
+    Import-DscResource -ModuleName PsDesiredStateConfiguration,xTimeZone,SystemLocaleDsc,xNetworking,xSystemSecurity,xRemoteDesktopAdmin,SecurityPolicyDsc
 
     Node $ComputerName {
+
+        LocalConfigurationManager
+        {
+            # This is false by default
+            RebootNodeIfNeeded = 'false'
+        }
 
         # Standard Management Services 
         WindowsFeature TelnetClient { 
@@ -199,13 +339,68 @@ Configuration BaseOSConfig {
             ValueType = 'String'
         }
 
-        # Set To a Default WorkGroup
-        xComputer DefaultDetails { 
-            Name = "$( ($RegisteredOwner.PadLeft(7,[char]65)).Substring(0,7) )-$(-join ((65..90) | Get-Random -Count 7 | ForEach-Object {[char]$_}))"
-            WorkGroupName = "$( ($RegisteredOwner.PadLeft(7,[char]65)).Substring(0,7) )WG"
+        # Default User Hive update
+        Script mountDefaultUserHive { 
+            GetScript = {
+                Return @{
+                    Result = Get-ChildItem $using:DefaultUserMountPoint
+                } 
+            }
+
+            TestScript = {
+                if ( Test-Path $using:DefaultUserMountPoint ) {
+                    Write-Verbose "Default User Reg mounted"
+                    return $True
+                }
+                Else { 
+                    Write-Verbose "Default User Reg unmounted"
+                    return $False
+                }   
+            }
+
+            SetScript = { 
+                Write-Verbose "Mounting Default User Hive"
+                & REG LOAD $( $using:DefaultUserMountPoint -replace ':','' ) C:\Users\Default\NTUSER.DAT
+            }
         }
+
+        BaseUserConfig DefaultUserConfig { 
+            UserRegHive = $DefaultUserMountPoint
+            DependsOn = "[Script]mountDefaultUserHive"
+        }
+
+
+        # Default User Hive update
+        Script unmountDefaultUserHive { 
+            GetScript = {
+                Return @{
+                    Result = Get-ChildItem $using:DefaultUserMountPoint
+                } 
+            }
+
+            TestScript = {
+                if ( Test-Path $using:DefaultUserMountPoint ) {
+                    Write-Verbose "Default User Reg needs to be unmounted"
+                    return $False
+                }
+                Else { 
+                    Write-Verbose "Default User Reg unmount"
+                    return $True
+                }   
+            }
+
+            SetScript = { 
+                Write-Verbose "unmounting Default User Hive"
+                [gc]::Collect() # necessary call to be able to unload registry hive
+                & REG UNLOAD $( $using:DefaultUserMountPoint -replace ':','' )
+            }
+            DependsOn =  "[BaseUserConfig]DefaultUserConfig"
+        }
+        
     }
 }
+
+
 
 # Make the Envelope Size bigger for local DSC Config 
 Set-Item WSMan:\localhost\MaxEnvelopeSizekb 10000
