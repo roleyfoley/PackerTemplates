@@ -7,6 +7,7 @@ Configuration BaseUserConfig {
 
    Import-DscResource -ModuleName PsDesiredStateConfiguration
 
+    # File Explorer - Show Hidden Files
     Registry UserKey_HiddenFiles { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         ValueName = 'Hidden'
@@ -17,6 +18,17 @@ Configuration BaseUserConfig {
         
     }
 
+    # File Explorer - Open to "This PC"
+    Registry UserKey_OpentoThisPC { 
+        Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        ValueName = 'LaunchTo'
+        ValueData =  '1'
+        Ensure = 'Present'
+        Force = $True
+        ValueType = 'Dword'
+    }
+
+    # File Explorer - Show File Extensions
     Registry UserKey_ShowExtensions { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         ValueName = 'HideFileExt'
@@ -24,9 +36,9 @@ Configuration BaseUserConfig {
         Ensure = 'Present'
         Force = $True
         ValueType = 'Dword'
-        
     }
 
+    # File Explorer - Show mounted drives that have no content
     Registry UserKey_ShowEmptyDrives { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         ValueName = 'HideDrivesWithNoMedia'
@@ -37,6 +49,7 @@ Configuration BaseUserConfig {
         
     }
 
+    # File Explorer - Disable sharing wizard
     Registry UserKey_DisableSharingWizard { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         ValueName = 'SharingWizardOn'
@@ -47,7 +60,7 @@ Configuration BaseUserConfig {
         
     }
 
-
+    # File Explorer - Don't show frequent files
     Registry UserKey_NoFrequentFiles { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer"
         ValueName = 'ShowFrequent'
@@ -58,6 +71,7 @@ Configuration BaseUserConfig {
         
     }
 
+    # File Explorer - Don't show recent files
     Registry UserKey_NoRecentFiles { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer"
         ValueName = 'ShowRecent'
@@ -68,6 +82,7 @@ Configuration BaseUserConfig {
         
     }
 
+    # File Explorer - Show Full file path in address bar
     Registry UserKey_ShowFullFilePath { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\CabinetState"
         ValueName = 'FullPath'
@@ -78,6 +93,7 @@ Configuration BaseUserConfig {
         
     }
 
+    # File Explorer - Search - Only search file names in non-indexed locations
     Registry UserKey_SearchFileNamesOnly { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\PrimaryProperties"
         ValueName = 'UnindexedLocations'
@@ -88,6 +104,7 @@ Configuration BaseUserConfig {
         
     }
 
+    # File Explorer - Search - Search subfolders when searching 
     Registry UserKey_SearchSubFolders { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences"
         ValueName = 'SearchSubFolders'
@@ -98,6 +115,7 @@ Configuration BaseUserConfig {
         
     }
 
+    # File Explorer - Search - Allow partital match of items
     Registry UserKey_SearchAutoWildCard { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences"
         ValueName = 'AutoWildCard'
@@ -108,6 +126,7 @@ Configuration BaseUserConfig {
         
     }
 
+    # File Explorer - Search - Search in System Folders
     Registry UserKey_SearchSystemFolders { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences"
         ValueName = 'SystemFolders'
@@ -118,6 +137,7 @@ Configuration BaseUserConfig {
         
     }
 
+    # File Explorer - Search - Look through comrpessed folders
     Registry UserKey_SearchArchivedFolders { 
         Key = "$UserRegHive\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences"
         ValueName = 'ArchivedFiles'
@@ -150,17 +170,19 @@ Configuration BaseOSConfig {
        [String] $ImageName = 'Win2016Std_1.0.0',
 
        [ValidateNotNullOrEmpty()]
-       [String] $DefaultUserMountPoint = 'HKLM:\DEFAULTUSER'
+       [String] $DefaultUserMountPoint = 'HKLM:\DEFAULTUSER',
+
+       [string[]] $CurrentUsers
    )
 
-    Import-DscResource -ModuleName PsDesiredStateConfiguration,xTimeZone,SystemLocaleDsc,xNetworking,xSystemSecurity,xRemoteDesktopAdmin,SecurityPolicyDsc
+    Import-DscResource -ModuleName PsDesiredStateConfiguration,xTimeZone,SystemLocaleDsc,xNetworking,xSystemSecurity,xRemoteDesktopAdmin,SecurityPolicyDsc,xComputerManagement
 
     Node $ComputerName {
 
         LocalConfigurationManager
         {
             # This is false by default
-            RebootNodeIfNeeded = 'false'
+            RebootNodeIfNeeded = $false
         }
 
         # Standard Management Services 
@@ -339,7 +361,7 @@ Configuration BaseOSConfig {
             ValueType = 'String'
         }
 
-        # Default User Hive update
+        # To update the Default user hive registry keys we need to mount the ntuser.dat file to the registry 
         Script mountDefaultUserHive { 
             GetScript = {
                 Return @{
@@ -364,13 +386,13 @@ Configuration BaseOSConfig {
             }
         }
 
+        # Update the user keys for a user 
         BaseUserConfig DefaultUserConfig { 
             UserRegHive = $DefaultUserMountPoint
             DependsOn = "[Script]mountDefaultUserHive"
         }
 
-
-        # Default User Hive update
+        # Unmount the ntuser.dat file from the registry 
         Script unmountDefaultUserHive { 
             GetScript = {
                 Return @{
@@ -391,12 +413,22 @@ Configuration BaseOSConfig {
 
             SetScript = { 
                 Write-Verbose "unmounting Default User Hive"
-                [gc]::Collect() # necessary call to be able to unload registry hive
+                # necessary call to be able to unload registry hive
+                [gc]::Collect() 
                 & REG UNLOAD $( $using:DefaultUserMountPoint -replace ':','' )
             }
             DependsOn =  "[BaseUserConfig]DefaultUserConfig"
         }
-        
+
+        # Any users that have been already created won't get settings from the default hive
+        # Update all the current user keys with the default user settings
+        foreach ( $User in $CurrentUsers ) {
+           
+            BaseUserConfig "AllUserConfig_$User" { 
+                UserRegHive = "$User"
+            }
+
+        } 
     }
 }
 
@@ -405,6 +437,12 @@ Configuration BaseOSConfig {
 # Make the Envelope Size bigger for local DSC Config 
 Set-Item WSMan:\localhost\MaxEnvelopeSizekb 10000
 
+# Get the current Users to get user level reg keys
+if ( ! (Get-PSDrive | Where-Object { $_.Root -eq 'HKEY_USERS' }) ) {
+    New-PSDrive -PSProvider Registry -Name HKU -Root HKEY_USERS 
+}
+$CurrentUsers = (Get-ChildItem HKU:).Name
+
 # Build DSC Config and apply to local host
-BaseOSConfig -OutputPath C:\DSC\BaseOSConfig 
+BaseOSConfig -OutputPath C:\DSC\BaseOSConfig -CurrentUsers $CurrentUsers
 Start-DscConfiguration -Path C:\DSC\BaseOSConfig -Wait -Force -Verbose 
