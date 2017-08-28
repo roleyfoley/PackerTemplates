@@ -161,7 +161,7 @@ Configuration BaseOSConfig {
        [String] $TimeZone = 'AUS Eastern Standard Time',
 
        [ValidateNotNullOrEmpty()]
-       [String] $RegisteredOwner = 'SpazNet',
+       [String] $RegisteredOwner = 'FolNet',
 
        [ValidateNotNullOrEmpty()]
        [String] $OEMSupportNumber = '000',
