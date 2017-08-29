@@ -160,7 +160,7 @@ Configuration BaseOSConfig {
        [String] $TimeZone = 'AUS Eastern Standard Time',
 
        [ValidateNotNullOrEmpty()]
-       [String] $RegisteredOwner = 'SpazNet',
+       [String] $RegisteredOwner = 'FolNet',
 
        [ValidateNotNullOrEmpty()]
        [String] $OEMSupportNumber = '000',
@@ -484,5 +484,10 @@ $BGInfoScriptLocation = "$($ENV:ProgramFiles)\bginfo\Run-BGInfo.ps1"
 $OEMLogoLocation = "$($ENV:ProgramFiles)\OEMInfo\CloudHub.bmp"
 
 # Build DSC Config and apply to local host
+<<<<<<< HEAD
 BaseOSConfig -OutputPath C:\DSC\BaseOSConfig -CurrentUsers $CurrentUsers -BGInfoScriptLocation $BGInfoScriptLocation -OEMImageLocation $OEMLogoLocation
 Start-DscConfiguration -Path C:\DSC\BaseOSConfig -Wait -Force -Verbose 
+=======
+BaseOSConfig -OutputPath C:\DSC\BaseOSConfig -CurrentUsers $CurrentUsers
+Start-DscConfiguration -Path C:\DSC\BaseOSConfig -Wait -Force -Verbose 
+>>>>>>> d8ae645faf8c5198f383da58bc05209306d22f2e
