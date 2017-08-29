@@ -1,5 +1,5 @@
 Configuration BaseUserConfig { 
-    param
+param
    (
         [string]$UserRegHive
 
@@ -15,7 +15,6 @@ Configuration BaseUserConfig {
         Ensure = 'Present'
         Force = $True
         ValueType = 'Dword'
-        
     }
 
     # File Explorer - Open to "This PC"
@@ -167,10 +166,16 @@ Configuration BaseOSConfig {
        [String] $OEMSupportNumber = '000',
 
        [ValidateNotNullOrEmpty()]
+       [String] $OEMImageLocation,
+
+       [ValidateNotNullOrEmpty()]
        [String] $ImageName = 'Win2016Std_1.0.0',
 
        [ValidateNotNullOrEmpty()]
        [String] $DefaultUserMountPoint = 'HKLM:\DEFAULTUSER',
+
+       [ValidateNotNullOrEmpty()]
+       [string] $BGInfoScriptLocation,
 
        [string[]] $CurrentUsers
    )
@@ -360,6 +365,36 @@ Configuration BaseOSConfig {
             Force = $True
             ValueType = 'String'
         }
+        Registry OEMImage { 
+            Key = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation'
+            ValueName = 'Logo'
+            ValueData = $OEMImageLocation
+            Ensure = 'Present'
+            Force = $True
+            ValueType = 'String'
+        }
+
+        # BGInfo 
+        Registry BGInfoKey { 
+            Key = 'HKEY_USERS\.DEFAULT\Software\Sysinternals\BGInfo'
+            ValueName = 'EulaAccepted'
+            ValueData = 1
+            Ensure = 'Present'
+            Force = $True
+            ValueType =  'Dword'
+        }
+
+        xScheduledTask BGInfoAtLogOn { 
+            Ensure = 'Present'
+            TaskName = 'RunBGInfo'
+            Description = 'Updates the BGInfo screen on user logon'
+            ScheduleType = 'AtLogOn'
+            Enable = $True
+            RestartCount = 1
+            ActionExecutable = 'Powershell.exe'
+            ActionArguments = '-ExecutionPolicy Bypass C:\Program` Files\bginfo\Run-BGInfo.ps1'
+            MultipleInstances = 'IgnoreNew'
+        }
 
         # To update the Default user hive registry keys we need to mount the ntuser.dat file to the registry 
         Script mountDefaultUserHive { 
@@ -391,6 +426,7 @@ Configuration BaseOSConfig {
             UserRegHive = $DefaultUserMountPoint
             DependsOn = "[Script]mountDefaultUserHive"
         }
+
 
         # Unmount the ntuser.dat file from the registry 
         Script unmountDefaultUserHive { 
@@ -433,7 +469,6 @@ Configuration BaseOSConfig {
 }
 
 
-
 # Make the Envelope Size bigger for local DSC Config 
 Set-Item WSMan:\localhost\MaxEnvelopeSizekb 10000
 
@@ -443,6 +478,11 @@ if ( ! (Get-PSDrive | Where-Object { $_.Root -eq 'HKEY_USERS' }) ) {
 }
 $CurrentUsers = (Get-ChildItem HKU:).Name
 
+# Get the current program files location for BGInfo
+$BGInfoScriptLocation = "$($ENV:ProgramFiles)\bginfo\Run-BGInfo.ps1"
+
+$OEMLogoLocation = "$($ENV:ProgramFiles)\OEMInfo\CloudHub.bmp"
+
 # Build DSC Config and apply to local host
-BaseOSConfig -OutputPath C:\DSC\BaseOSConfig -CurrentUsers $CurrentUsers
+BaseOSConfig -OutputPath C:\DSC\BaseOSConfig -CurrentUsers $CurrentUsers -BGInfoScriptLocation $BGInfoScriptLocation -OEMImageLocation $OEMLogoLocation
 Start-DscConfiguration -Path C:\DSC\BaseOSConfig -Wait -Force -Verbose 

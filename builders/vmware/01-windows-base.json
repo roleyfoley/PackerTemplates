@@ -153,6 +153,16 @@
             "restart_timeout": "1h"
         },
         {
+            "type": "file",
+            "source": "files/bginfo",
+            "destination": "C:/Program Files"
+        },
+        {
+            "type": "file",
+            "source": "files/OEMInfo",
+            "destination": "C:/Program Files"
+        },
+        {
             "type": "powershell",
             "script": "scripts/dsc_baseconfig.ps1"
         }, 
@@ -167,7 +177,7 @@
         {
             "type": "windows-restart",
             "restart_timeout": "1h"
-        }, 
+        },
         {
             "elevated_password": "vagrant",
             "elevated_user": "vagrant",
