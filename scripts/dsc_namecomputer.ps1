@@ -25,7 +25,7 @@ Configuration OrgBaseComputerName {
 # Make the Envelope Size bigger for local DSC Config 
 Set-Item WSMan:\localhost\MaxEnvelopeSizekb 10000
 
-$RegisteredOwner = 'SpazNet'
+$RegisteredOwner = 'CloudHub'
 
 if ( $ENV:COMPUTERNAME -notlike "$(($RegisteredOwner.PadLeft(7,[char]65)).Substring(0,7) )-*" ) { 
     # Build DSC Config and apply to local host

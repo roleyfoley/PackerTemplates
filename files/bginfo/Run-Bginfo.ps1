@@ -5,6 +5,7 @@ $Arguments = @(
     '/accepteula'
     '/silent'
     '/timer 0'
+    '/allusers'
 )
 
 & "$InstallLocation\$BGInfoFile" $Arguments
