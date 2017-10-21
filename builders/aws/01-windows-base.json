@@ -1,0 +1,176 @@
+{    
+    "builders": [ 
+        {
+            "type": "amazon-ebs",
+            "region": "ap-southeast-2",
+            "vpc_id": "vpc-5f0b9e3b",
+            "subnet_id": "subnet-b4840fed", 
+            "instance_type": "t2.medium",
+            "communicator": "winrm",
+            "winrm_username": "Administrator",
+            "user_data_file": "./scripts/ec2user_winrm.ps1",
+            "force_deregister": true,
+            "force_delete_snapshot": true,
+            "disable_stop_instance": true,
+            "source_ami_filter": {
+                "filters": {
+                "virtualization-type": "hvm",
+                "name": "*Windows_Server-2016-English-Full-Base-*",
+                "root-device-type": "ebs"
+                },
+                "owners": ["801119661308"],
+                "most_recent": true
+            },
+            "ami_name": "CloudHub-Win2016Std",
+            "launch_block_device_mappings": [
+              {
+                "device_name": "/dev/sda1",
+                "volume_size": 40,
+                "volume_type": "gp2",
+                "delete_on_termination": true
+              }
+            ]
+          }
+    ],
+    "provisioners": [
+            {
+                "elevated_password": "Something@123",
+                "elevated_user": "vagrant",
+                "script": "scripts/install_choco.ps1",
+                "type": "powershell"
+            },
+            {
+                "type": "powershell",
+                "script": "scripts/install_psrepo.ps1",
+                "elevated_user": "vagrant",
+                "elevated_password": "Something@123",
+                "valid_exit_codes": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    5,
+                    10,
+                    15
+                ]
+            },
+            {
+                "type": "powershell",
+                "script": "scripts/install_psModules.ps1",
+                "elevated_user": "vagrant",
+                "elevated_password": "Something@123",
+                "valid_exit_codes": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    5,
+                    10,
+                    15
+                ]
+            },
+            
+            {
+                "type": "powershell",
+                "script": "scripts/install_windows_updates.ps1",
+                "elevated_user": "vagrant",
+                "elevated_password": "Something@123",
+                "valid_exit_codes": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    5,
+                    10,
+                    15
+                ]
+            },
+            {
+                "type": "windows-restart",
+                "restart_timeout": "1h"
+            },
+            {
+                "type": "powershell",
+                "script": "scripts/install_windows_updates.ps1",
+                "elevated_user": "vagrant",
+                "elevated_password": "Something@123",
+                "valid_exit_codes": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    5,
+                    10,
+                    15
+                ]
+            },
+            {
+                "type": "windows-restart",
+                "restart_timeout": "1h"
+            },
+            {
+                "type": "powershell",
+                "script": "scripts/install_windows_updates.ps1",
+                "elevated_user": "vagrant",
+                "elevated_password": "Something@123",
+                "valid_exit_codes": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    5,
+                    10,
+                    15
+                ]
+            }, 
+            {
+                "type": "windows-restart",
+                "restart_timeout": "1h"
+            },
+            {
+                "type": "file",
+                "source": "files/bginfo",
+                "destination": "C:/Program Files"
+            },
+            {
+                "type": "file",
+                "source": "files/OEMInfo",
+                "destination": "C:/Program Files"
+            },
+            {
+                "type": "powershell",
+                "elevated_user": "vagrant",
+                "elevated_password": "Something@123",
+                "script": "scripts/dsc_baseconfig.ps1"
+            }, 
+            {
+                "type": "windows-restart",
+                "restart_timeout": "1h"
+            }, 
+            {
+                "type": "powershell",
+                "elevated_user": "vagrant",
+                "elevated_password": "Something@123",
+                "script": "scripts/dsc_namecomputer.ps1"
+            }, 
+            {
+                "type": "windows-restart",
+                "restart_timeout": "1h"
+            },
+            {
+                "type": "powershell",
+                "elevated_password": "Something@123",
+                "elevated_user": "vagrant",
+                "script": "scripts/clean_and_scrub.ps1"
+            },
+            {
+                "type": "powershell",
+                "elevated_user": "vagrant",
+                "elevated_password": "Something@123",
+                "script": "scripts/ec2_launchConfig.ps1"
+            }
+    ],
+    "variables": {
+        "os_name": "win2016std"
+    }
+}

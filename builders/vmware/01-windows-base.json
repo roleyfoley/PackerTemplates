@@ -25,7 +25,9 @@
                 "memsize": 4096,
                 "scsi0.virtualDev": "lsisas1068",
                 "firmware": "efi",
-                "bios.bootOrder": "hdd,cdrom" 
+                "bios.bootOrder": "hdd,cdrom",
+                "numvcpus": 4,
+                "cpuid.coresPerSocket": 4
             },
             "version": 12,
             "boot_command":[
@@ -161,6 +163,11 @@
             "type": "file",
             "source": "files/OEMInfo",
             "destination": "C:/Program Files"
+        },
+        {
+            "type": "file",
+            "source": "files/unattended.xml",
+            "destination": "C:/Windows/Packer"
         },
         {
             "type": "powershell",
