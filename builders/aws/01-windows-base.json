@@ -19,7 +19,7 @@
                 "owners": ["801119661308"],
                 "most_recent": true
             },
-            "ami_name": "CloudHub-Win2016Std_{{isotime \"2006-01-02 03\"}}",
+            "ami_name": "CloudHub-Win2016Std_{{isotime \"2006-01-02 15:04\"}}",
             "launch_block_device_mappings": [
               {
                 "device_name": "/dev/sda1",
