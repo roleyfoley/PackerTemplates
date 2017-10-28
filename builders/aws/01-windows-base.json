@@ -126,7 +126,7 @@
             {
                 "type": "file",
                 "source": "files/unattend.xml",
-                "destination": "C:/ProgramData/Amazon/EC2-Windows/Launch/Sysprep/unattend.xml"
+                "destination": "C:/Temp/unattend.xml"
             },
             {
                 "type": "powershell",
