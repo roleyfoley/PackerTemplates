@@ -56,7 +56,7 @@
             },
             {
                 "type": "powershell",
-                "script": "scripts/install_psModules.ps1",
+                "script": "scripts/install_psmodules.ps1",
                 "elevated_user": "vagrant",
                 "elevated_password": "Something@123",
                 "valid_exit_codes": [
