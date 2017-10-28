@@ -5,7 +5,7 @@
             "region": "ap-southeast-2",
             "vpc_id": "vpc-5f0b9e3b",
             "subnet_id": "subnet-b4840fed", 
-            "instance_type": "t2.medium",
+            "instance_type": "t2.large",
             "communicator": "winrm",
             "winrm_username": "Administrator",
             "user_data_file": "./scripts/enable_winrm_ec2User.ps1",
