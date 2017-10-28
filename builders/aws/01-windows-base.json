@@ -9,8 +9,6 @@
             "communicator": "winrm",
             "winrm_username": "Administrator",
             "user_data_file": "./scripts/enable_winrm_ec2User.ps1",
-            "force_deregister": true,
-            "force_delete_snapshot": true,
             "disable_stop_instance": true,
             "source_ami_filter": {
                 "filters": {
