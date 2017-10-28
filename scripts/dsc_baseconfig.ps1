@@ -192,12 +192,12 @@ Configuration BaseOSConfig {
 
         # Standard Management Services 
         WindowsFeature TelnetClient { 
-            Name = "Telnet-Client"
-            Ensure = "Present"
+            Name = 'Telnet-Client'
+            Ensure = 'Present'
         }
         WindowsFeature DotNet35 { 
-            Name = "WAS-NET-Environment"
-            Ensure = "Present"
+            Name = 'WAS-NET-Environment'
+            Ensure = 'Present'
         }
         WindowsFeature SNMP { 
             Name = 'SNMP-Service'
@@ -211,6 +211,11 @@ Configuration BaseOSConfig {
         WindowsFeature WinBackup { 
             Name = 'Windows-Server-Backup'
             Ensure = 'Present'
+        }
+
+        WindowsFeature NoSMB1 { 
+            Name = 'FS-SMB1'
+            Ensure = 'Absent'
         }
 
         # Timezone and Locale

@@ -124,7 +124,12 @@
                 "type": "powershell",
                 "elevated_user": "vagrant",
                 "elevated_password": "Something@123",
-                "script": "scripts/ec2_launchConfig.ps1"
+                "script": "scripts/ec2_launchConfig.ps1",
+                "valid_exit_codes": [
+                    0,
+                    1,
+                    259
+                ]
             }
     ],
     "variables": {
