@@ -22,6 +22,11 @@
             "type": "powershell"
         },
         {
+            "type": "file",
+            "source": "files/unattend.xml",
+            "destination": "C:/Windows/Packer"
+        },
+        {
             "type": "powershell",
             "script": "scripts/save_shutdown_command.ps1"
         }

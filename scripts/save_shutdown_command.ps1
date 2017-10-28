@@ -1,12 +1,11 @@
 $packerWindowsDir = 'C:\Windows\packer'
-if ( !(Test-Path $packerWindowsDir ) { 
+if ( !(Test-Path $packerWindowsDir) ) { 
     New-Item -Path $packerWindowsDir -ItemType Directory -Force
 }
 
 # final shutdown command
 $shutdownCmd = @"
 netsh advfirewall firewall set rule name="WinRM-HTTP" new action=block
-
 C:/windows/system32/sysprep/sysprep.exe /generalize /oobe /unattend:C:/Windows/packer/unattended.xml /quiet /shutdown
 "@
 

@@ -17,7 +17,7 @@
             "shutdown_timeout": "1h",
             "floppy_files": [
                 "answer_files/{{ user `os_name` }}/Autounattend.xml",
-                "floppy/winrm.ps1"
+                "scripts/enable_winrm.ps1"
             ],
             "disk_size": 60000,
             "disk_type_id": 1,
@@ -165,17 +165,16 @@
             "destination": "C:/Program Files"
         },
         {
-            "type": "file",
-            "source": "files/unattended.xml",
-            "destination": "C:/Windows/Packer"
-        },
-        {
             "type": "powershell",
             "script": "scripts/dsc_baseconfig.ps1"
         }, 
         {
             "type": "windows-restart",
             "restart_timeout": "1h"
+        }, 
+        {
+            "type": "powershell",
+            "script": "scripts/dsc_baseconfig.ps1"
         }, 
         {
             "type": "powershell",
@@ -190,6 +189,11 @@
             "elevated_user": "vagrant",
             "script": "scripts/clean_and_scrub.ps1",
             "type": "powershell"
+        },
+        {
+            "type": "file",
+            "source": "files/unattend.xml",
+            "destination": "C:/Windows/Packer"
         },
         {
             "type": "powershell",

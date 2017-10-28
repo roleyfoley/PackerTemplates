@@ -1,7 +1,7 @@
 $TempPath = 'C:\Temp'
 
-if ( !(Test-path -Path C:\Temp) ) { 
-    New-Item -ItemType Directory -Path C:\ -Name Temp
+if ( !(Test-path -Path $TempPath) ) { 
+    New-Item -ItemType Directory -Path $TempPath
 }
 
 Invoke-WebRequest -Uri https://s3.amazonaws.com/ec2-downloads-windows/EC2Launch/latest/EC2-Windows-Launch.zip -OutFile C:\Temp\EC2-Windows-Launch.zip
@@ -16,7 +16,7 @@ $LaunchConfig.adminPasswordType = "Random"
 $LaunchConfig.extendBootVolumeSize = $True
 $LaunchConfig.setWallpaper = $False
 
- Convertto-Json -Depth 100  $LaunchConfig | Out-File $ConfigFile
+Convertto-Json -Depth 100  $LaunchConfig | Out-File $ConfigFile
  
 # Schedules the intial instance setup on the next boot
 C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule

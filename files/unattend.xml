@@ -25,10 +25,6 @@
             <TimeZone>AUS Eastern Standard Time</TimeZone>
             <BluetoothTaskbarIconEnabled>false</BluetoothTaskbarIconEnabled>
             <UserAccounts>
-                <AdministratorPassword>
-                    <Value>vagrant</Value>
-                    <PlainText>true</PlainText>
-                </AdministratorPassword>
                 <LocalAccounts>
                     <LocalAccount wcm:action="add">
                         <Password>
