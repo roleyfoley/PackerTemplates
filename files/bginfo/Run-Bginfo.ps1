@@ -53,7 +53,6 @@ $InstanceLocation = ""
 $InstanceSize = ""
 $AccountId = ""
 
-
 # Get Hosting Environment Specifics
 switch ( $HostingEnv ) {
 
@@ -92,7 +91,6 @@ switch ( $HostingEnv ) {
 [Environment]::SetEnvironmentVariable("HostEnv_Loction", "$($InstanceLocation)", "Machine")
 [Environment]::SetEnvironmentVariable("HostEnv_Size", "$($InstanceSize)", "Machine")
 [Environment]::SetEnvironmentVariable("HostEnv_Account", "$($AccountId)", "Machine")
-
 
 $InstallLocation = "$($Env:Programfiles)\bginfo"
 $BGInfoFile = 'Bginfo64.exe'
